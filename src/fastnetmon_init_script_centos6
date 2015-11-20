@@ -6,7 +6,7 @@
 # description: FastNetMon - high performance DoS/DDoS analyzer with sflow/netflow/mirror support
 # processname: fastnemon
 # config: /etc/fastnetmon.conf
-# pidfile: /var/run/fastnetmon.pid
+# pidfile: /var/run/Medusa_Detector.pid
 #
 ### BEGIN INIT INFO
 # Provides: fastnetmon
@@ -28,7 +28,7 @@
 
 FASTNETMON=/usr/sbin/fastnetmon
 PROGNAME="fastnetmon"
-PIDFILE=/var/run/fastnetmon.pid
+PIDFILE=/var/run/Medusa_Detector.pid
 RETVAL=0
 ARGS="--daemonize"
 

@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-std::string cli_stats_file_path = "/tmp/fastnetmon.dat";
+std::string cli_stats_file_path = "/tmp/Medusa_Detector.dat";
 
 int main() {
     // Init ncurses screen

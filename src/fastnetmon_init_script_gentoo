@@ -1,7 +1,7 @@
 #!/sbin/runscript
 
 FASTNETMON="/opt/fastnetmon/fastnetmon"
-PIDFILE="/var/run/fastnetmon.pid"
+PIDFILE="/var/run/Medusa_Detector.pid"
 ARGS="--daemonize"
 
 depend() {

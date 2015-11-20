@@ -135,9 +135,9 @@ bool enable_api = false;
 
 time_t last_call_of_traffic_recalculation;
 
-std::string cli_stats_file_path = "/tmp/fastnetmon.dat";
+std::string cli_stats_file_path = "/tmp/Medusa_Detector.dat";
 
-std::string reporting_server = "heartbeat.fastnetmon.io";
+//std::string reporting_server = "heartbeat.fastnetmon.io";
 
 unsigned int stats_thread_sleep_time = 3600;
 unsigned int stats_thread_initial_call_delay = 30;
@@ -864,9 +864,9 @@ std::string draw_table(direction data_direction, bool do_redis_update, sort_type
         // We use setw for alignment
         output_buffer << client_ip_as_string << "\t\t";
 
-        output_buffer << std::setw(6) << pps << " pps ";
-        output_buffer << std::setw(6) << mbps << " mbps ";
-        output_buffer << std::setw(6) << flows << " flows ";
+        output_buffer << std::setw(6) << pps << " PPS ";
+        output_buffer << std::setw(6) << mbps << " Mbps ";
+        output_buffer << std::setw(6) << flows << " Flows ";
         
         output_buffer << is_banned << std::endl;
 
@@ -2395,30 +2395,29 @@ void traffic_draw_programm() {
         sorter = PACKETS;
     }
 
-    output_buffer << "FastNetMon " << fastnetmon_version
-                  << " FastVPS Eesti OU (c) VPS and dedicated: http://FastVPS.host"
-                  << "\n"
-                  << "IPs ordered by: " << sort_parameter << "\n";
+    output_buffer << "Medusa Detector User Land"
+                  << " Base on 6Wind DPDK 2.1.0"
+                  << "\n";
 
-    output_buffer << print_channel_speed("Incoming traffic", INCOMING) << std::endl;
+    output_buffer << print_channel_speed("Incoming Traffic", INCOMING) << std::endl;
 
     if (process_incoming_traffic) {
         output_buffer << draw_table(INCOMING, true, sorter);
         output_buffer << std::endl;
     }
 
-    output_buffer << print_channel_speed("Outgoing traffic", OUTGOING) << std::endl;
+    output_buffer << print_channel_speed("Outgoing Traffic", OUTGOING) << std::endl;
 
     if (process_outgoing_traffic) {
         output_buffer << draw_table(OUTGOING, false, sorter);
         output_buffer << std::endl;
     }
 
-    output_buffer << print_channel_speed("Internal traffic", INTERNAL) << std::endl;
+    output_buffer << print_channel_speed("Internal Traffic", INTERNAL) << std::endl;
 
     output_buffer << std::endl;
 
-    output_buffer << print_channel_speed("Other traffic", OTHER) << std::endl;
+    output_buffer << print_channel_speed("Other Traffic", OTHER) << std::endl;
 
     output_buffer << std::endl;
 
@@ -2438,7 +2437,7 @@ void traffic_draw_programm() {
 #endif
 
     output_buffer << "Total amount of IPv6 packets related to our own network: " << our_ipv6_packets << "\n";
-    output_buffer << "Not processed packets: " << total_unparsed_packets_speed << " pps\n";
+    output_buffer << "Not processed packets: " << total_unparsed_packets_speed << " PPS\n";
 
     // Print backend stats
     if (enable_pcap_collection) {
@@ -2497,13 +2496,13 @@ std::string print_channel_speed(std::string traffic_type, direction packet_direc
 
     uint64_t speed_in_mbps = convert_speed_to_mbps(speed_in_bps);
 
-    stream << std::setw(6) << speed_in_pps << " pps " << std::setw(6) << speed_in_mbps << " mbps";
+    stream << std::setw(6) << speed_in_pps << " PPS " << std::setw(6) << speed_in_mbps << " Mbps";
 
-    if (traffic_type == "Incoming traffic" or traffic_type == "Outgoing traffic") {
+    if (traffic_type == "Incoming Traffic" or traffic_type == "Outgoing Traffic") {
         if (packet_direction == INCOMING) {
-            stream << " " << std::setw(6) << incoming_total_flows_speed << " flows";
+            stream << " " << std::setw(6) << incoming_total_flows_speed << " Flows";
         } else if (packet_direction == OUTGOING) {
-            stream << " " << std::setw(6) << outgoing_total_flows_speed << " flows";
+            stream << " " << std::setw(6) << outgoing_total_flows_speed << " Flows";
         }
 
         if (graphite_enabled) {
@@ -2512,17 +2511,17 @@ std::string print_channel_speed(std::string traffic_type, direction packet_direc
             std::string direction_as_string;
 
             if (packet_direction == INCOMING) {
-                direction_as_string = "incoming";
+                direction_as_string = "Incoming";
 
-                graphite_data[graphite_prefix + ".total." + direction_as_string + ".flows"] = incoming_total_flows_speed;
+                graphite_data[graphite_prefix + ".Total." + direction_as_string + ".Flows"] = incoming_total_flows_speed;
             } else if (packet_direction == OUTGOING) {
-                direction_as_string = "outgoing";
+                direction_as_string = "Outgoing";
 
-                graphite_data[graphite_prefix + ".total." + direction_as_string + ".flows"] = outgoing_total_flows_speed;
+                graphite_data[graphite_prefix + ".Total." + direction_as_string + ".Flows"] = outgoing_total_flows_speed;
             }
 
-            graphite_data[graphite_prefix + ".total." + direction_as_string + ".pps"] = speed_in_pps;
-            graphite_data[graphite_prefix + ".total." + direction_as_string + ".bps"] = speed_in_bps * 8;
+            graphite_data[graphite_prefix + ".Total." + direction_as_string + ".PPS"] = speed_in_pps;
+            graphite_data[graphite_prefix + ".Total." + direction_as_string + ".Bps"] = speed_in_bps * 8;
 
             bool graphite_put_result = store_data_to_graphite(graphite_port, graphite_host, graphite_data);
 
@@ -3325,28 +3324,28 @@ void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::
 #endif
 }
 
-void send_usage_data_to_reporting_server() {
-    std::stringstream request_stream;
-    request_stream << "GET " << "/heartbeat/stats?incoming_traffic_speed=" << total_speed_average_counters[INCOMING].bytes;
-    request_stream << "&outgoing_traffic_speed=" << total_speed_average_counters[OUTGOING].bytes;
-    request_stream << " HTTP/1.0\r\n";
-    request_stream << "Host: " << reporting_server << "\r\n";
-    request_stream << "Accept: */*\r\n";
-    request_stream << "Connection: close\r\n\r\n";
+//void send_usage_data_to_reporting_server() {
+//    std::stringstream request_stream;
+//    request_stream << "GET " << "/heartbeat/stats?incoming_traffic_speed=" << total_speed_average_counters[INCOMING].bytes;
+//    request_stream << "&outgoing_traffic_speed=" << total_speed_average_counters[OUTGOING].bytes;
+//    request_stream << " HTTP/1.0\r\n";
+//    request_stream << "Host: " << reporting_server << "\r\n";
+//    request_stream << "Accept: */*\r\n";
+//    request_stream << "Connection: close\r\n\r\n";
 
-    std::string reporting_server_ip_address = dns_lookup(reporting_server);
+//    std::string reporting_server_ip_address = dns_lookup(reporting_server);
 
-    if (reporting_server_ip_address.empty()) {
-        logger << log4cpp::Priority::ERROR << "Stats server resolver failed, please check your DNS";
-        return;
-    }
+//    if (reporting_server_ip_address.empty()) {
+//        logger << log4cpp::Priority::ERROR << "Stats server resolver failed, please check your DNS";
+//        return;
+//    }
 
-    bool result = store_data_to_stats_server(80, reporting_server_ip_address, request_stream.str());
+//    bool result = store_data_to_stats_server(80, reporting_server_ip_address, request_stream.str());
 
-    if (!result) {
-        logger << log4cpp::Priority::ERROR << "Can't collect stats data";
-    }
-}
+//    if (!result) {
+//        logger << log4cpp::Priority::ERROR << "Can't collect stats data";
+//    }
+//}
 
 void collect_stats() {
     boost::this_thread::sleep(boost::posix_time::seconds(stats_thread_initial_call_delay));
@@ -4072,19 +4071,19 @@ std::string print_subnet_load() {
             std::replace(subnet_as_string_as_dash_delimiters.begin(),
                 subnet_as_string_as_dash_delimiters.end(), '/', '_');
 
-            graphite_data[ graphite_prefix + ".networks." + subnet_as_string_as_dash_delimiters + ".incoming.pps" ] = speed->in_packets;
-            graphite_data[ graphite_prefix + ".networks." + subnet_as_string_as_dash_delimiters + ".outgoing.pps" ] = speed->out_packets; 
+            graphite_data[ graphite_prefix + ".Networks." + subnet_as_string_as_dash_delimiters + ".Incoming.PPS" ] = speed->in_packets;
+            graphite_data[ graphite_prefix + ".Networks." + subnet_as_string_as_dash_delimiters + ".Outgoing.PPS" ] = speed->out_packets; 
 
-            graphite_data[ graphite_prefix + ".networks." + subnet_as_string_as_dash_delimiters + ".incoming.bps" ] = speed->in_bytes * 8; 
-            graphite_data[ graphite_prefix + ".networks." + subnet_as_string_as_dash_delimiters + ".outgoing.bps" ] = speed->out_bytes * 8;
+            graphite_data[ graphite_prefix + ".Networks." + subnet_as_string_as_dash_delimiters + ".Incoming.Bps" ] = speed->in_bytes * 8; 
+            graphite_data[ graphite_prefix + ".Networks." + subnet_as_string_as_dash_delimiters + ".Outgoing.Bps" ] = speed->out_bytes * 8;
         }
     
         buffer
             << " "
-            << "pps in: "   << std::setw(8) << speed->in_packets
-            << " out: "     << std::setw(8) << speed->out_packets
-            << " mbps in: " << std::setw(5) << convert_speed_to_mbps(speed->in_bytes)
-            << " out: "     << std::setw(5) << convert_speed_to_mbps(speed->out_bytes)
+            << "PPS IN: "   << std::setw(8) << speed->in_packets
+            << " Out: "     << std::setw(8) << speed->out_packets
+            << " Mbps IN: " << std::setw(5) << convert_speed_to_mbps(speed->in_bytes)
+            << " Out: "     << std::setw(5) << convert_speed_to_mbps(speed->out_bytes)
             << "\n";
     }
 

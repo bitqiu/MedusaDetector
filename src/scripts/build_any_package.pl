@@ -32,7 +32,7 @@ sub build_rpm_package {
 # description: FastNetMon - high performance DoS/DDoS analyzer with sflow/netflow/mirror support
 # processname: fastnemon
 # config: /etc/fastnetmon.conf
-# pidfile: /var/run/fastnetmon.pid
+# pidfile: /var/run/Medusa_Detector.pid
 #
 ### BEGIN INIT INFO
 # Provides: fastnetmon
@@ -54,7 +54,7 @@ sub build_rpm_package {
 
 FASTNETMON=/opt/fastnetmon/fastnetmon
 PROGNAME="fastnetmon"
-PIDFILE=/var/run/fastnetmon.pid
+PIDFILE=/var/run/Medusa_Detector.pid
 RETVAL=0
 ARGS="--daemonize"
 
@@ -115,7 +115,7 @@ After=syslog.target network.target remote-fs.target
 [Service]
 Type=forking
 ExecStart=/opt/fastnetmon/fastnetmon --daemonize
-PIDFile=/run/fastnetmon.pid
+PIDFile=/run/Medusa_Detector.pid
 
 #ExecReload=/bin/kill -s HUP $MAINPID
 #ExecStop=/bin/kill -s QUIT $MAINPID
@@ -412,7 +412,7 @@ After=network.target remote-fs.target
 [Service]
 Type=forking
 ExecStart=/opt/fastnetmon/fastnetmon --daemonize
-PIDFile=/run/fastnetmon.pid
+PIDFile=/run/Medusa_Detector.pid
 
 #ExecReload=/bin/kill -s HUP $MAINPID
 #ExecStop=/bin/kill -s QUIT $MAINPID
